@@ -1,0 +1,153 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="image-detail-container">
+    <h2>图像处理详情</h2>
+    <div class="info-block">
+        <p><strong>原始图像文件222:</strong> {{ processed_image.original_image.name }}</p>
+        <p><strong>模型类型:</strong> {{ processed_image.get_model_type_display }}</p>
+        <p><strong>选择的Mask:</strong>
+            {% if processed_image.selected_mask %}
+                {{ processed_image.selected_mask.name }}
+            {% else %}
+                无
+            {% endif %}
+        </p>
+        <p><strong>PSNR:</strong> {{ processed_image.psnr_value|default:'NULL'|floatformat:2 }}</p>
+        <p><strong>SSIM:</strong> {{ processed_image.ssim_value|default:'NULL'|floatformat:4 }}</p>
+        <p><strong>处理状态:</strong> {{ processed_image.get_processing_status_display }}</p>
+        <p><strong>上传时间:</strong> {{ processed_image.created_at }}</p>
+    </div>
+    <div class="image-grid">
+        <div class="image-item">
+            <h3>原始图像</h3>
+            <img src="{{ processed_image.input_preview.url }}" alt="原始图像" class="detail-image zoomable" onclick="showModal(this)">
+        </div>
+        <div class="image-item">
+            <h3>零填充图像</h3>
+            <img src="{{ processed_image.zero_filled_preview.url }}" alt="零填充图像" class="detail-image zoomable" onclick="showModal(this)">
+        </div>
+        <div class="image-item">
+            <h3>重建图像</h3>
+            <img src="{{ processed_image.output_preview.url }}" alt="重建图像" class="detail-image zoomable" onclick="showModal(this)">
+        </div>
+    </div>
+    <div class="actions">
+        <a href="{% url 'blog:image_list' %}" class="btn">返回列表</a>
+    </div>
+
+    <!-- Modal for image zoom -->
+    <div id="imgModal" class="modal" onclick="hideModal()">
+        <span class="close" onclick="hideModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <div id="caption"></div>
+    </div>
+</div>
+
+<style>
+.image-detail-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.info-block {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    font-size: 1.05em;
+}
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+.image-item {
+    text-align: center;
+}
+.detail-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+.detail-image:hover {
+    box-shadow: 0 0 8px #007bff;
+}
+.actions {
+    margin-top: 20px;
+}
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+}
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 80vw;
+    max-height: 80vh;
+    border-radius: 8px;
+    box-shadow: 0 0 20px #000;
+}
+.close {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10000;
+}
+#caption {
+    text-align: center;
+    color: #fff;
+    padding: 10px 0;
+    font-size: 18px;
+}
+</style>
+<script>
+function showModal(img) {
+    var modal = document.getElementById('imgModal');
+    var modalImg = document.getElementById('modalImg');
+    var captionText = document.getElementById('caption');
+    modal.style.display = 'block';
+    modalImg.src = img.src;
+    captionText.innerHTML = img.alt;
+}
+function hideModal() {
+    document.getElementById('imgModal').style.display = 'none';
+}
+// 允许点击遮罩层或关闭按钮关闭大图
+window.onclick = function(event) {
+    var modal = document.getElementById('imgModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

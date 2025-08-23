@@ -1,0 +1,105 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="mask-list-container">
+    <h2>欠采样Mask列表</h2>
+    <div class="mask-grid">
+        {% for mask in masks %}
+        <div class="mask-card">
+            <h3>{{ mask.name }}</h3>
+            <p class="mask-description">{{ mask.description }}</p>
+            <div class="mask-preview">
+                {% if mask.mask_file %}
+                <img src="{{ mask.mask_file.url }}" alt="{{ mask.name }}" class="mask-image">
+                {% else %}
+                <p>无预览图</p>
+                {% endif %}
+            </div>
+            <div class="mask-info">
+                <p>创建时间：{{ mask.created_at|date:"Y-m-d H:i" }}</p>
+            </div>
+            <a href="{% url 'mask_detail' mask.pk %}" class="view-btn">查看详情</a>
+        </div>
+        {% empty %}
+        <p class="no-masks">暂无可用的欠采样Mask</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.mask-list-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.mask-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.mask-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    transition: transform 0.2s;
+}
+
+.mask-card:hover {
+    transform: translateY(-5px);
+}
+
+.mask-card h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.mask-description {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.mask-preview {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.mask-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.mask-info {
+    margin-top: 15px;
+    font-size: 0.8em;
+    color: #888;
+}
+
+.view-btn {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 15px;
+    transition: background-color 0.2s;
+}
+
+.view-btn:hover {
+    background-color: #0056b3;
+}
+
+.no-masks {
+    text-align: center;
+    color: #666;
+    grid-column: 1 / -1;
+    padding: 40px;
+}
+</style>
+{% endblock %} 

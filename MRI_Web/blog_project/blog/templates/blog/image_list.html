@@ -1,0 +1,124 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="image-list-container">
+    <h2>图像处理列表</h2>
+    <a href="{% url 'blog:upload_image' %}" class="upload-btn">上传新图像</a>
+    
+    <div class="image-grid">
+        {% for image in images %}
+            <div class="image-item">
+                <h3>处理时间：{{ image.created_at }}</h3>
+                <div class="image-preview-grid">
+                    <div class="preview-item">
+                        <h4>原始图像</h4>
+                        {% if image.input_preview %}
+                            <img src="{{ image.input_preview.url }}" alt="原始图像" class="preview-image">
+                        {% else %}
+                            <span>无图像</span>
+                        {% endif %}
+                    </div>
+                    <div class="preview-item">
+                        <h4>零填充图像</h4>
+                        {% if image.zero_filled_preview %}
+                            <img src="{{ image.zero_filled_preview.url }}" alt="零填充图像" class="preview-image">
+                        {% else %}
+                            <span>无图像</span>
+                        {% endif %}
+                    </div>
+                    <div class="preview-item">
+                        <h4>重建图像</h4>
+                        {% if image.output_preview %}
+                            <img src="{{ image.output_preview.url }}" alt="重建图像" class="preview-image">
+                        {% else %}
+                            <span>无图像</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="image-metrics">
+                    <p>PSNR: {{ image.psnr_value|floatformat:2 }}</p>
+                    <p>SSIM: {{ image.ssim_value|floatformat:4 }}</p>
+                </div>
+                <div class="image-status">
+                    <p>状态：{{ image.get_processing_status_display }}</p>
+                </div>
+                <a href="{% url 'blog:image_detail' pk=image.pk %}" class="detail-btn">查看详情</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.image-list-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.upload-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.upload-btn:hover {
+    background-color: #218838;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.image-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background-color: white;
+}
+
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.preview-item {
+    text-align: center;
+}
+
+.preview-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #eee;
+    border-radius: 2px;
+}
+
+.image-metrics, .image-status {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.detail-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.detail-btn:hover {
+    background-color: #0056b3;
+}
+</style>
+{% endblock %} 

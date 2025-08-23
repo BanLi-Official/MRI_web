@@ -1,0 +1,134 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="mask-detail-container">
+    <div class="mask-header">
+        <h2>{{ mask.name }}</h2>
+        <p class="mask-description">{{ mask.description }}</p>
+    </div>
+    
+    <div class="mask-content">
+        <div class="mask-preview">
+            {% if mask.mask_file %}
+            <img src="{{ mask.mask_file.url }}" alt="{{ mask.name }}" class="mask-image">
+            {% else %}
+            <p>无预览图</p>
+            {% endif %}
+        </div>
+        
+        <div class="mask-info">
+            <div class="info-item">
+                <h3>创建时间</h3>
+                <p>{{ mask.created_at|date:"Y-m-d H:i" }}</p>
+            </div>
+            
+            <div class="info-item">
+                <h3>使用说明</h3>
+                <p>此欠采样Mask可用于图像重建处理。在上传图像时选择此Mask，系统将使用此Mask进行欠采样处理。</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{% url 'mask_list' %}" class="back-btn">返回列表</a>
+        <a href="{% url 'upload_image' %}" class="use-btn">使用此Mask</a>
+    </div>
+</div>
+
+<style>
+.mask-detail-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.mask-header {
+    margin-bottom: 30px;
+}
+
+.mask-header h2 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.mask-description {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.mask-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.mask-preview {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.mask-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.mask-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-item {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.info-item h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.info-item p {
+    margin: 0;
+    color: #666;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.back-btn, .use-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.back-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.back-btn:hover {
+    background-color: #5a6268;
+}
+
+.use-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.use-btn:hover {
+    background-color: #0056b3;
+}
+</style>
+{% endblock %} 
