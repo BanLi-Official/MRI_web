@@ -1,0 +1,146 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-images"></i> 图像处理列表</h2>
+        {% if user.is_authenticated %}
+            <a href="{% url 'blog:upload_image' %}" class="btn btn-success">
+                <i class="fas fa-upload"></i> 上传新图像
+            </a>
+        {% endif %}
+    </div>
+    {% if not user.is_authenticated %}
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            您当前是以游客身份浏览。要上传和处理图像，请先
+            <a href="{% url 'login' %}" class="alert-link mx-1">登录</a>
+            或
+            <a href="{% url 'blog:register' %}" class="alert-link mx-1">注册</a>
+            账号。
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+        {% for image in images %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="far fa-clock"></i> {{ image.created_at|date:"Y-m-d H:i" }}</span>
+                    <span class="badge 
+                        {% if image.processing_status == 'pending' %}bg-secondary
+                        {% elif image.processing_status == 'processing' %}bg-warning
+                        {% elif image.processing_status == 'completed' %}bg-success
+                        {% elif image.processing_status == 'failed' %}bg-danger
+                        {% else %}bg-info{% endif %}">
+                        {{ image.get_processing_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-4 text-center">
+                            <div class="mb-2 small text-muted">原始图像</div>
+                            {% if image.input_preview %}
+                                <img src="{{ image.input_preview.url }}" alt="原始图像" class="img-fluid rounded border">
+                            {% else %}
+                                <div class="text-muted">无图像</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="mb-2 small text-muted">零填充图像</div>
+                            {% if image.zero_filled_preview %}
+                                <img src="{{ image.zero_filled_preview.url }}" alt="零填充图像" class="img-fluid rounded border">
+                            {% else %}
+                                <div class="text-muted">无图像</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="mb-2 small text-muted">重建图像</div>
+                            {% if image.output_preview %}
+                                <img src="{{ image.output_preview.url }}" alt="重建图像" class="img-fluid rounded border">
+                            {% else %}
+                                <div class="text-muted">无图像</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary">PSNR: {{ image.psnr_value|floatformat:2 }}</span>
+                        <span class="badge bg-info text-dark">SSIM: {{ image.ssim_value|floatformat:4 }}</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-end">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'blog:image_detail' pk=image.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye"></i> 查看详情
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-secondary btn-sm" onclick="alert('请先登录后再查看详情')">
+                            <i class="fas fa-sign-in-alt"></i> 查看详情
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning text-center">
+                暂无图像处理记录。
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.card {
+    transition: box-shadow 0.2s;
+}
+.card:hover {
+    box-shadow: 0 0 16px 0 rgba(0,0,0,0.12);
+}
+.badge {
+    font-size: 0.95em;
+    padding: 0.5em 0.8em;
+}
+.img-fluid {
+    max-height: 120px;
+    object-fit: contain;
+    background: #f8f9fa;
+}
+@media (max-width: 767px) {
+    .img-fluid {
+        max-height: 80px;
+    }
+}
+h2, .badge, .card-header span {
+    font-weight: 500; /* 调整字体为中等粗细 */
+}
+.badge.bg-primary {
+    background-color: #5a5c69; /* 深灰蓝色，适合PSNR */
+    color: rgb(46, 44, 44);
+}
+.badge.bg-info {
+    background-color: #5a5c69; /* 深青色，适合SSIM */
+    color: rgb(46, 44, 44); /* 字体颜色改为白色 */
+}
+.badge.bg-success {
+    background-color: #5ea56f; /* 更柔和的绿色 */
+    color: white;
+}
+.badge.bg-warning {
+    background-color: #f8d15c; /* 更柔和的黄色 */
+    color: black;
+}
+.badge.bg-danger {
+    background-color: #e25f6c; /* 更柔和的红色 */
+    color: white;
+}
+.badge.bg-secondary {
+    background-color: #6c757d; /* 更柔和的灰色 */
+    color: white;
+}
+.row.g-4 {
+    row-gap: 20px; /* 增加每行之间的间距 */
+}
+</style>
+{% endblock %}

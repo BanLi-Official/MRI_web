@@ -1,0 +1,191 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-edit"></i> {{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.data_type.id_for_label }}">{{ form.data_type.label }}</label>
+                            {{ form.data_type }}
+                            {% if form.data_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.data_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">选择数据类型</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.source_name.id_for_label }}">{{ form.source_name.label }}</label>
+                            {{ form.source_name }}
+                            {% if form.source_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.source_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">如：医院A、研究机构B等</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.source_description.id_for_label }}">{{ form.source_description.label }}</label>
+                            {{ form.source_description }}
+                            {% if form.source_description.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.source_description.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.contact_person.id_for_label }}">{{ form.contact_person.label }}</label>
+                                    {{ form.contact_person }}
+                                    {% if form.contact_person.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.contact_person.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.contact_email.id_for_label }}">{{ form.contact_email.label }}</label>
+                                    {{ form.contact_email }}
+                                    {% if form.contact_email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.contact_email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.institution.id_for_label }}">{{ form.institution.label }}</label>
+                            {{ form.institution }}
+                            {% if form.institution.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.institution.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.collection_date.id_for_label }}">{{ form.collection_date.label }}</label>
+                                    {{ form.collection_date }}
+                                    {% if form.collection_date.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.collection_date.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.data_quality.id_for_label }}">{{ form.data_quality.label }}</label>
+                                    {{ form.data_quality }}
+                                    {% if form.data_quality.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.data_quality.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form.is_public }}
+                                <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
+                                    {{ form.is_public.label }}
+                                </label>
+                                <small class="form-text text-muted">{{ form.is_public.help_text }}</small>
+                            </div>
+                            {% if form.is_public.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.is_public.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存
+                            </button>
+                            {% if data_source %}
+                                <a href="{% url 'blog:data_source_detail' data_source.pk %}" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-arrow-left"></i> 返回详情
+                                </a>
+                            {% else %}
+                                <a href="{% url 'blog:data_source_list' %}" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-arrow-left"></i> 返回列表
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 创建说明 -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> 创建说明</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>数据源名称：</strong>应具有描述性，便于识别和管理</li>
+                        <li><strong>数据质量：</strong>请根据实际数据质量选择合适的等级</li>
+                        <li><strong>公开访问：</strong>勾选后所有用户都可以访问该数据源，否则只有创建者和管理员可以访问</li>
+                        <li><strong>联系人信息：</strong>建议填写以便其他用户联系</li>
+                        <li><strong>收集日期：</strong>数据收集的日期，有助于了解数据的新鲜度</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

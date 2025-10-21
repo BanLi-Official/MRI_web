@@ -1,0 +1,255 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}上传进度条演示{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-chart-line"></i> 上传进度条功能演示</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> 功能特性</h5>
+                        <ul class="mb-0">
+                            <li><strong>实时进度显示</strong>：动态更新上传百分比</li>
+                            <li><strong>文件大小显示</strong>：已上传大小 / 总文件大小</li>
+                            <li><strong>上传速度计算</strong>：实时显示当前上传速度</li>
+                            <li><strong>预计剩余时间</strong>：根据当前速度计算剩余时间</li>
+                            <li><strong>取消上传功能</strong>：可以随时取消正在进行的上传</li>
+                            <li><strong>状态指示器</strong>：不同颜色表示不同状态</li>
+                        </ul>
+                    </div>
+
+                    <!-- 演示进度条 -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-upload"></i> 进度条演示</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>文件名：</strong><span id="demo-filename">demo_file.dcm</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>状态：</strong><span id="demo-status" class="badge badge-info">上传中</span>
+                                </div>
+                            </div>
+                            
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div id="demo-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <span id="demo-progress-text">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>已上传：</strong><br>
+                                        <span id="demo-uploaded-size">0 B</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>文件大小：</strong><br>
+                                        <span id="demo-file-size">15.2 MB</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>上传速度：</strong><br>
+                                        <span id="demo-upload-speed">0 KB/s</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>预计剩余：</strong><br>
+                                        <span id="demo-estimated-time">计算中...</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 控制按钮 -->
+                    <div class="text-center mb-4">
+                        <button id="start-demo" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play"></i> 开始演示
+                        </button>
+                        <button id="reset-demo" class="btn btn-secondary btn-lg ml-2">
+                            <i class="fas fa-redo"></i> 重置
+                        </button>
+                    </div>
+
+                    <!-- 功能说明 -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-palette"></i> 状态颜色说明</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <span class="badge badge-info">上传中</span> - 蓝色，表示正在上传
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="badge badge-success">上传完成</span> - 绿色，表示上传成功
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="badge badge-danger">上传失败</span> - 红色，表示上传失败
+                                    </div>
+                                    <div class="mb-0">
+                                        <span class="badge badge-warning">处理中</span> - 黄色，表示正在处理
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-cogs"></i> 技术特性</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        <li>基于XMLHttpRequest的实时进度跟踪</li>
+                                        <li>自动计算上传速度和剩余时间</li>
+                                        <li>支持大文件上传（无大小限制）</li>
+                                        <li>响应式设计，支持移动设备</li>
+                                        <li>优雅的错误处理和用户反馈</li>
+                                        <li>可取消的上传操作</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 实际使用 -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-rocket"></i> 实际使用</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>要体验真实的上传进度条功能，请访问：</p>
+                            <div class="text-center">
+                                <a href="{% url 'blog:data_file_upload' %}" class="btn btn-success">
+                                    <i class="fas fa-upload"></i> 文件上传页面
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let demoInterval = null;
+let demoProgress = 0;
+let demoStartTime = 0;
+let demoFileSize = 15.2 * 1024 * 1024; // 15.2 MB
+
+function startDemo() {
+    demoProgress = 0;
+    demoStartTime = Date.now();
+    
+    document.getElementById('demo-status').className = 'badge badge-info';
+    document.getElementById('demo-status').textContent = '上传中';
+    document.getElementById('demo-progress-bar').className = 'progress-bar progress-bar-striped progress-bar-animated';
+    
+    demoInterval = setInterval(updateDemo, 100);
+}
+
+function updateDemo() {
+    demoProgress += Math.random() * 2; // 随机增加进度
+    
+    if (demoProgress >= 100) {
+        demoProgress = 100;
+        clearInterval(demoInterval);
+        
+        // 上传完成
+        document.getElementById('demo-status').className = 'badge badge-success';
+        document.getElementById('demo-status').textContent = '上传完成';
+        document.getElementById('demo-progress-bar').className = 'progress-bar progress-bar-success';
+        document.getElementById('demo-progress-bar').classList.remove('progress-bar-animated');
+        document.getElementById('demo-uploaded-size').textContent = formatFileSize(demoFileSize);
+        document.getElementById('demo-upload-speed').textContent = '0 KB/s';
+        document.getElementById('demo-estimated-time').textContent = '0秒';
+        
+        setTimeout(() => {
+            alert('演示完成！文件上传成功！');
+        }, 500);
+    } else {
+        // 更新进度
+        const progressBar = document.getElementById('demo-progress-bar');
+        const progressText = document.getElementById('demo-progress-text');
+        
+        progressBar.style.width = demoProgress + '%';
+        progressBar.setAttribute('aria-valuenow', demoProgress);
+        progressText.textContent = Math.round(demoProgress) + '%';
+        
+        // 计算已上传大小
+        const uploadedSize = (demoProgress / 100) * demoFileSize;
+        document.getElementById('demo-uploaded-size').textContent = formatFileSize(uploadedSize);
+        
+        // 计算上传速度
+        const timeElapsed = (Date.now() - demoStartTime) / 1000;
+        const speed = uploadedSize / timeElapsed;
+        document.getElementById('demo-upload-speed').textContent = formatFileSize(speed) + '/s';
+        
+        // 计算预计剩余时间
+        if (speed > 0) {
+            const remaining = demoFileSize - uploadedSize;
+            const estimatedTime = remaining / speed;
+            document.getElementById('demo-estimated-time').textContent = formatTime(estimatedTime);
+        }
+    }
+}
+
+function resetDemo() {
+    if (demoInterval) {
+        clearInterval(demoInterval);
+    }
+    
+    demoProgress = 0;
+    document.getElementById('demo-progress-bar').style.width = '0%';
+    document.getElementById('demo-progress-bar').setAttribute('aria-valuenow', '0');
+    document.getElementById('demo-progress-text').textContent = '0%';
+    document.getElementById('demo-status').className = 'badge badge-secondary';
+    document.getElementById('demo-status').textContent = '待上传';
+    document.getElementById('demo-progress-bar').className = 'progress-bar';
+    document.getElementById('demo-uploaded-size').textContent = '0 B';
+    document.getElementById('demo-upload-speed').textContent = '0 KB/s';
+    document.getElementById('demo-estimated-time').textContent = '计算中...';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function formatTime(seconds) {
+    if (seconds < 60) {
+        return Math.ceil(seconds) + '秒';
+    } else if (seconds < 3600) {
+        return Math.floor(seconds / 60) + '分' + Math.ceil(seconds % 60) + '秒';
+    } else {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        return hours + '小时' + minutes + '分钟';
+    }
+}
+
+// 绑定事件
+document.getElementById('start-demo').addEventListener('click', startDemo);
+document.getElementById('reset-demo').addEventListener('click', resetDemo);
+</script>
+{% endblock %}
+

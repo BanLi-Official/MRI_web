@@ -1,0 +1,158 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}数据源管理{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- 页面头部 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-server"></i> 数据源{% if user.is_staff %}管理{% else %}浏览{% endif %}</h2>
+                {% if user.is_staff %}
+                <a href="{% url 'blog:data_source_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 创建数据源
+                </a>
+                {% endif %}
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- 搜索表单 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row">
+                        <div class="col-md-3">
+                            {{ search_form.data_type }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ search_form.search_query }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ search_form.quality_filter }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> 搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 数据源列表 -->
+            {% if page_obj %}
+                <div class="row">
+                    {% for data_source in page_obj %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="{{ data_source.data_type.icon }} mr-2" style="color: {{ data_source.data_type.color }};"></i>
+                                    <span class="badge badge-{% if data_source.data_quality == 'excellent' %}success{% elif data_source.data_quality == 'good' %}primary{% elif data_source.data_quality == 'fair' %}warning{% else %}danger{% endif %}">
+                                        {{ data_source.get_data_quality_display }}
+                                    </span>
+                                </div>
+                                {% if not data_source.is_public %}
+                                    <span class="badge badge-warning">私有</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-body">
+                                <h6 class="card-title">{{ data_source.source_name }}</h6>
+                                <p class="card-text text-muted small">
+                                    {{ data_source.source_description|truncatewords:15 }}
+                                </p>
+                                
+                                <div class="row text-center mb-3">
+                                    <div class="col-6">
+                                        <div class="border-right">
+                                            <h6 class="mb-1 text-primary">{{ data_source.get_file_count }}</h6>
+                                            <small class="text-muted">文件数</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <h6 class="mb-1 text-success">{{ data_source.get_formatted_size }}</h6>
+                                        <small class="text-muted">总大小</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="small text-muted mb-2">
+                                    <i class="fas fa-building"></i> {{ data_source.institution|default:"未设置机构" }}<br>
+                                    <i class="fas fa-calendar"></i> {{ data_source.created_at|date:"Y-m-d" }}
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'blog:data_source_detail' data_source.pk %}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i> 查看详情
+                                    </a>
+                                    {% if user.is_staff %}
+                                    <a href="{% url 'blog:data_file_upload' %}?data_source={{ data_source.pk }}" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-upload"></i> 上传文件
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- 分页 -->
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="数据源分页">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.data_type %}data_type={{ request.GET.data_type }}&{% endif %}{% if request.GET.search_query %}search_query={{ request.GET.search_query }}&{% endif %}{% if request.GET.quality_filter %}quality_filter={{ request.GET.quality_filter }}&{% endif %}page=1">首页</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.data_type %}data_type={{ request.GET.data_type }}&{% endif %}{% if request.GET.search_query %}search_query={{ request.GET.search_query }}&{% endif %}{% if request.GET.quality_filter %}quality_filter={{ request.GET.quality_filter }}&{% endif %}page={{ page_obj.previous_page_number }}">上一页</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                第 {{ page_obj.number }} 页，共 {{ page_obj.paginator.num_pages }} 页
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.data_type %}data_type={{ request.GET.data_type }}&{% endif %}{% if request.GET.search_query %}search_query={{ request.GET.search_query }}&{% endif %}{% if request.GET.quality_filter %}quality_filter={{ request.GET.quality_filter }}&{% endif %}page={{ page_obj.next_page_number }}">下一页</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.data_type %}data_type={{ request.GET.data_type }}&{% endif %}{% if request.GET.search_query %}search_query={{ request.GET.search_query }}&{% endif %}{% if request.GET.quality_filter %}quality_filter={{ request.GET.quality_filter }}&{% endif %}page={{ page_obj.paginator.num_pages }}">末页</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">没有找到匹配的数据源</h4>
+                    <p class="text-muted">请尝试调整搜索条件</p>
+                    <a href="{% url 'blog:data_source_list' %}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> 查看所有数据源
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

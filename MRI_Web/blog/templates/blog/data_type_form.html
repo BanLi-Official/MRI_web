@@ -1,0 +1,161 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-cog"></i> {{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">选择数据类型</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.description.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">详细介绍该数据类型的特点和应用场景</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.icon.id_for_label }}">{{ form.icon.label }}</label>
+                                    {{ form.icon }}
+                                    {% if form.icon.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.icon.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">FontAwesome图标名称，如：fa-heart、fa-brain、fa-x-ray</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+                                    {{ form.color }}
+                                    {% if form.color.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.color.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">该数据类型的主题颜色</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存
+                            </button>
+                            {% if data_type %}
+                                <a href="{% url 'blog:data_type_detail' data_type.pk %}" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-arrow-left"></i> 返回详情
+                                </a>
+                            {% else %}
+                                <a href="{% url 'blog:data_type_list' %}" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-arrow-left"></i> 返回列表
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 图标参考 -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-palette"></i> 图标参考</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <h6>医疗相关</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-heart text-danger"></i> fa-heart</li>
+                                <li><i class="fas fa-brain text-primary"></i> fa-brain</li>
+                                <li><i class="fas fa-x-ray text-info"></i> fa-x-ray</li>
+                                <li><i class="fas fa-stethoscope text-success"></i> fa-stethoscope</li>
+                                <li><i class="fas fa-user-md text-warning"></i> fa-user-md</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6>技术相关</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-microchip text-primary"></i> fa-microchip</li>
+                                <li><i class="fas fa-camera text-info"></i> fa-camera</li>
+                                <li><i class="fas fa-image text-success"></i> fa-image</li>
+                                <li><i class="fas fa-database text-secondary"></i> fa-database</li>
+                                <li><i class="fas fa-file-medical text-danger"></i> fa-file-medical</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6>通用图标</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-folder text-warning"></i> fa-folder</li>
+                                <li><i class="fas fa-file text-secondary"></i> fa-file</li>
+                                <li><i class="fas fa-download text-primary"></i> fa-download</li>
+                                <li><i class="fas fa-upload text-success"></i> fa-upload</li>
+                                <li><i class="fas fa-chart-line text-info"></i> fa-chart-line</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6>颜色建议</h6>
+                            <ul class="list-unstyled">
+                                <li><span class="badge badge-danger">#dc3545</span> MRI</li>
+                                <li><span class="badge badge-success">#28a745</span> PET</li>
+                                <li><span class="badge badge-info">#17a2b8</span> CT</li>
+                                <li><span class="badge badge-warning">#ffc107</span> 超声</li>
+                                <li><span class="badge badge-primary">#007bff</span> X光</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">
+                        <small>更多图标请参考 <a href="https://fontawesome.com/icons" target="_blank">FontAwesome图标库</a></small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

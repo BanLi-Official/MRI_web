@@ -1,0 +1,218 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ data_file.file_name }} - 文件详情{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <!-- 页面头部 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-file fa-2x mr-3 text-primary"></i>
+                    <div>
+                        <h2 class="mb-1">{{ data_file.file_name }}</h2>
+                        <p class="text-muted mb-0">{{ data_file.data_source.source_name }} | {{ data_file.data_source.data_type.get_name_display }}</p>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <a href="{% url 'blog:data_file_download' data_file.pk %}" class="btn btn-success">
+                        <i class="fas fa-download"></i> 下载文件
+                    </a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'blog:data_file_delete' data_file.pk %}" 
+                       class="btn btn-outline-danger"
+                       onclick="return confirm('确定要删除这个文件吗？')">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <!-- 左侧文件信息 -->
+                <div class="col-lg-4 mb-4">
+                    <!-- 基本信息 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> 文件信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>文件名：</strong></td>
+                                    <td>{{ data_file.file_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>文件类型：</strong></td>
+                                    <td>
+                                        <span class="badge badge-info">{{ data_file.get_file_type_display }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>文件大小：</strong></td>
+                                    <td>{{ data_file.get_formatted_size }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>下载次数：</strong></td>
+                                    <td>
+                                        <span class="badge badge-secondary">{{ data_file.download_count }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>上传时间：</strong></td>
+                                    <td>{{ data_file.created_at|date:"Y年m月d日 H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>上传者：</strong></td>
+                                    <td>{{ data_file.uploaded_by.username|default:"未知" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>状态：</strong></td>
+                                    <td>
+                                        {% if data_file.is_active %}
+                                            <span class="badge badge-success">正常</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">已删除</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 数据源信息 -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-database"></i> 数据源信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>数据源：</strong></td>
+                                    <td>
+                                        <a href="{% url 'blog:data_source_detail' data_file.data_source.pk %}">
+                                            {{ data_file.data_source.source_name }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>数据类型：</strong></td>
+                                    <td>
+                                        <i class="{{ data_file.data_source.data_type.icon }}" style="color: {{ data_file.data_source.data_type.color }};"></i>
+                                        {{ data_file.data_source.data_type.get_name_display }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>机构：</strong></td>
+                                    <td>{{ data_file.data_source.institution|default:"未设置" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>数据质量：</strong></td>
+                                    <td>
+                                        <span class="badge badge-{% if data_file.data_source.data_quality == 'excellent' %}success{% elif data_file.data_source.data_quality == 'good' %}primary{% elif data_file.data_source.data_quality == 'fair' %}warning{% else %}danger{% endif %}">
+                                            {{ data_file.data_source.get_data_quality_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧详细信息 -->
+                <div class="col-lg-8">
+                    <!-- 文件描述 -->
+                    {% if data_file.file_description %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-file-alt"></i> 文件描述</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ data_file.file_description|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 医学信息 -->
+                    {% if data_file.patient_id or data_file.scan_date or data_file.scan_parameters %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-user-md"></i> 医学信息</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if data_file.patient_id %}
+                            <div class="mb-3">
+                                <strong>患者ID：</strong>
+                                <span class="badge badge-info">{{ data_file.patient_id }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if data_file.scan_date %}
+                            <div class="mb-3">
+                                <strong>扫描日期：</strong>
+                                {{ data_file.scan_date|date:"Y年m月d日 H:i" }}
+                            </div>
+                            {% endif %}
+
+                            {% if data_file.scan_parameters %}
+                            <div class="mb-3">
+                                <strong>扫描参数：</strong>
+                                <div class="mt-2">
+                                    <pre class="bg-light p-3 rounded"><code>{{ data_file.scan_parameters }}</code></pre>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 标签 -->
+                    {% if data_file.tags %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-tags"></i> 标签</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for tag in data_file.tags.split:"," %}
+                                {% if tag.strip %}
+                                <span class="badge badge-secondary mr-1 mb-1">{{ tag.strip }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 操作按钮 -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">文件操作</h5>
+                            <p class="card-text text-muted">您可以选择下载文件或执行其他操作</p>
+                            <div class="btn-group">
+                                <a href="{% url 'blog:data_file_download' data_file.pk %}" class="btn btn-success btn-lg">
+                                    <i class="fas fa-download"></i> 下载文件
+                                </a>
+                                <a href="{% url 'blog:data_source_detail' data_file.data_source.pk %}" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-folder"></i> 查看数据源
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

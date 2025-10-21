@@ -1,0 +1,17 @@
+nohup: ignoring input
+Watching for file changes with StatReloader
+[21/Oct/2025 05:02:31] "GET / HTTP/1.1" 200 17528
+[21/Oct/2025 05:06:00] code 400, message Bad request version ('\x00\x9eÌ¨Ìª\x003\x00=\x00\x16À')
+[21/Oct/2025 05:06:00] You're accessing the development server over HTTPS, but it only supports HTTP.
+[21/Oct/2025 05:06:11] "GET / HTTP/1.1" 200 17528
+Not Found: /favicon.ico
+[21/Oct/2025 05:06:29] "GET /favicon.ico HTTP/1.1" 404 10298
+Not Found: /robots.txt
+[21/Oct/2025 05:06:30] "GET /robots.txt HTTP/1.1" 404 10295
+Not Found: /sitemap.xml
+[21/Oct/2025 05:06:31] "GET /sitemap.xml HTTP/1.1" 404 10298
+Not Found: /config.json
+[21/Oct/2025 05:06:31] "GET /config.json HTTP/1.1" 404 10298
+[21/Oct/2025 05:06:32,084] - Broken pipe from ('107.150.117.219', 44264)
+[21/Oct/2025 05:12:11] "GET / HTTP/1.1" 200 17528
+[21/Oct/2025 05:12:11,623] - Broken pipe from ('185.189.182.234', 39070)

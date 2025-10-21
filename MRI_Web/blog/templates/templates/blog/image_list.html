@@ -1,0 +1,18 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h2>处理过的图片列表</h2>
+    <a href="{% url 'blog:upload_image' %}" class="upload-btn">上传新图片</a>
+    
+    <div class="image-grid">
+        {% for image in images %}
+            <div class="image-item">
+                <h3>{{ image.title }}</h3>
+                <a href="{% url 'blog:image_detail' pk=image.pk %}">
+                    <img src="{{ image.processed_image.url }}" alt="{{ image.title }}">
+                </a>
+                <p>上传时间：{{ image.upload_date }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %} 

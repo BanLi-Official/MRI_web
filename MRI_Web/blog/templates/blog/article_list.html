@@ -1,0 +1,25 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>文章列表</h2>
+  <a href="{% url 'blog:article_upload' %}" class="btn btn-success mb-3">发布新文章</a>
+  {% if articles %}
+    <div class="list-group">
+      {% for article in articles %}
+        <div class="list-group-item mb-3">
+          <h4>
+            <a href="{% url 'blog:article_detail' article.pk %}">{{ article.title }}</a>
+          </h4>
+          {% if article.image %}
+            <img src="{{ article.image.url }}" class="img-thumbnail mb-2" style="max-width:200px;"/>
+          {% endif %}
+          <p><strong>摘要：</strong>{{ article.summary }}</p>
+          <p class="text-muted">创建时间：{{ article.created_time|date:'Y-m-d H:i' }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>暂无文章。</p>
+  {% endif %}
+</div>
+{% endblock %} 

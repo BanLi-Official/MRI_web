@@ -1,0 +1,145 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ data_type.get_name_display }} - 数据类型详情{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- 页面头部 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="{{ data_type.icon }} fa-2x mr-3" style="color: {{ data_type.color }};"></i>
+                    <div>
+                        <h2 class="mb-1">{{ data_type.get_name_display }}</h2>
+                        <p class="text-muted mb-0">{{ data_type.created_at|date:"Y年m月d日" }} 创建</p>
+                    </div>
+                </div>
+                {% if user.is_staff %}
+                <a href="{% url 'blog:admin_data_type_edit' data_type.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-edit"></i> 编辑类型
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- 类型描述 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> 类型描述</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ data_type.description|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- 数据源列表 -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> 数据源列表 
+                        <span class="badge badge-primary">{{ page_obj.paginator.count }}</span>
+                    </h5>
+                    {% if user.is_staff %}
+                    <a href="{% url 'blog:data_source_create' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> 创建数据源
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if page_obj %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>数据源名称</th>
+                                        <th>机构</th>
+                                        <th>数据质量</th>
+                                        <th>文件数</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data_source in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ data_source.source_name }}</strong>
+                                                {% if not data_source.is_public %}
+                                                    <span class="badge badge-warning ml-2">私有</span>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">{{ data_source.source_description|truncatewords:10 }}</small>
+                                        </td>
+                                        <td>{{ data_source.institution|default:"未设置" }}</td>
+                                        <td>
+                                            <span class="badge badge-{% if data_source.data_quality == 'excellent' %}success{% elif data_source.data_quality == 'good' %}primary{% elif data_source.data_quality == 'fair' %}warning{% else %}danger{% endif %}">
+                                                {{ data_source.get_data_quality_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info">{{ data_source.get_file_count }}</span>
+                                            <small class="text-muted d-block">{{ data_source.get_formatted_size }}</small>
+                                        </td>
+                                        <td>{{ data_source.created_at|date:"Y-m-d" }}</td>
+                                        <td>
+                                            <a href="{% url 'blog:data_source_detail' data_source.pk %}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i> 查看
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="数据源分页">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">首页</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        第 {{ page_obj.number }} 页，共 {{ page_obj.paginator.num_pages }} 页
+                                    </span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">末页</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-folder-open fa-2x text-muted mb-3"></i>
+                            <h5 class="text-muted">暂无数据源</h5>
+                            <p class="text-muted">还没有为这个数据类型创建数据源</p>
+                            {% if user.is_staff %}
+                            <a href="{% url 'blog:data_source_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> 创建第一个数据源
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

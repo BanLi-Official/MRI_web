@@ -1,0 +1,264 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}进度条测试{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-upload"></i> 进度条测试</h4>
+                </div>
+                <div class="card-body">
+                    <!-- 进度条区域 -->
+                    <div id="upload-progress" class="card mb-4" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-upload"></i> 上传进度</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>文件名：</strong><span id="progress-filename">-</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>状态：</strong><span id="progress-status" class="badge badge-info">上传中</span>
+                                </div>
+                            </div>
+                            
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <span id="progress-text">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>已上传：</strong><br>
+                                        <span id="uploaded-size">0 B</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>文件大小：</strong><br>
+                                        <span id="file-size">0 B</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>上传速度：</strong><br>
+                                        <span id="upload-speed">0 KB/s</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">
+                                        <strong>预计剩余：</strong><br>
+                                        <span id="estimated-time">计算中...</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="test-form">
+                        <div class="form-group">
+                            <label for="test-file">选择测试文件</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="test-file" name="file">
+                                <label class="custom-file-label" for="test-file">选择文件...</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-0">
+                            <button type="submit" id="upload-btn" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> 开始测试上传
+                            </button>
+                            <button type="button" id="cancel-btn" class="btn btn-danger ml-2" style="display: none;">
+                                <i class="fas fa-times"></i> 取消上传
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let uploadStartTime = 0;
+
+// 文件选择后显示文件名
+document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+    var fileName = e.target.files[0] ? e.target.files[0].name : '选择文件...';
+    e.target.nextElementSibling.innerHTML = fileName;
+});
+
+// 测试表单提交处理
+document.getElementById('test-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('测试表单提交事件触发');
+    
+    const fileInput = document.getElementById('test-file');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('请选择要测试的文件');
+        return;
+    }
+    
+    console.log('文件选择成功:', file.name, file.size);
+    
+    // 显示进度条
+    showProgressBar(file);
+    
+    // 开始模拟上传
+    simulateUpload(file);
+});
+
+// 显示进度条
+function showProgressBar(file) {
+    console.log('显示进度条:', file.name);
+    document.getElementById('progress-filename').textContent = file.name;
+    document.getElementById('file-size').textContent = formatFileSize(file.size);
+    document.getElementById('upload-progress').style.display = 'block';
+    document.getElementById('upload-btn').disabled = true;
+    document.getElementById('cancel-btn').style.display = 'inline-block';
+    
+    // 滚动到进度条位置
+    document.getElementById('upload-progress').scrollIntoView({ behavior: 'smooth' });
+}
+
+// 更新进度条
+function updateProgress(progress) {
+    console.log('更新进度条:', progress);
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const statusBadge = document.getElementById('progress-status');
+    
+    progressBar.style.width = progress.progress + '%';
+    progressBar.setAttribute('aria-valuenow', progress.progress);
+    progressText.textContent = Math.round(progress.progress) + '%';
+    
+    document.getElementById('uploaded-size').textContent = progress.uploaded_size;
+    document.getElementById('upload-speed').textContent = progress.upload_speed;
+    
+    if (progress.estimated_time > 0) {
+        document.getElementById('estimated-time').textContent = formatTime(progress.estimated_time);
+    }
+    
+    // 更新状态
+    if (progress.status === 'completed') {
+        statusBadge.className = 'badge badge-success';
+        statusBadge.textContent = '上传完成';
+        progressBar.className = 'progress-bar progress-bar-success';
+        progressBar.classList.remove('progress-bar-animated');
+    } else if (progress.status === 'failed') {
+        statusBadge.className = 'badge badge-danger';
+        statusBadge.textContent = '上传失败';
+        progressBar.className = 'progress-bar progress-bar-danger';
+        progressBar.classList.remove('progress-bar-animated');
+    } else {
+        statusBadge.className = 'badge badge-info';
+        statusBadge.textContent = '上传中';
+    }
+}
+
+// 模拟上传过程
+function simulateUpload(file) {
+    console.log('开始模拟上传:', file.name);
+    
+    uploadStartTime = Date.now();
+    let loaded = 0;
+    const total = file.size;
+    const chunkSize = Math.max(total / 100, 1024 * 1024); // 至少1MB的块大小
+    
+    const interval = setInterval(() => {
+        if (loaded >= total) {
+            clearInterval(interval);
+            updateProgress({
+                progress: 100,
+                uploaded_size: formatFileSize(total),
+                file_size: formatFileSize(total),
+                upload_speed: '0 KB/s',
+                estimated_time: 0,
+                status: 'completed'
+            });
+            
+            setTimeout(() => {
+                alert('模拟上传完成！');
+                hideProgressBar();
+            }, 1000);
+            return;
+        }
+        
+        loaded += chunkSize;
+        if (loaded > total) loaded = total;
+        
+        const timeElapsed = Date.now() - uploadStartTime;
+        const progress = {
+            progress: (loaded / total) * 100,
+            uploaded_size: formatFileSize(loaded),
+            file_size: formatFileSize(total),
+            upload_speed: calculateSpeed(loaded, timeElapsed),
+            estimated_time: calculateEstimatedTime(loaded, total, timeElapsed),
+            status: 'uploading'
+        };
+        
+        updateProgress(progress);
+    }, 100); // 每100ms更新一次
+}
+
+// 隐藏进度条
+function hideProgressBar() {
+    document.getElementById('upload-progress').style.display = 'none';
+    document.getElementById('upload-btn').disabled = false;
+    document.getElementById('cancel-btn').style.display = 'none';
+}
+
+// 取消上传按钮
+document.getElementById('cancel-btn').addEventListener('click', function() {
+    hideProgressBar();
+    alert('上传已取消');
+});
+
+// 工具函数
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function formatTime(seconds) {
+    if (seconds < 60) {
+        return seconds + '秒';
+    } else if (seconds < 3600) {
+        return Math.floor(seconds / 60) + '分' + (seconds % 60) + '秒';
+    } else {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        return hours + '小时' + minutes + '分钟';
+    }
+}
+
+function calculateSpeed(loaded, timeElapsed) {
+    if (timeElapsed === 0) return '0 KB/s';
+    const speed = (loaded / 1024) / (timeElapsed / 1000);
+    return formatFileSize(speed * 1024) + '/s';
+}
+
+function calculateEstimatedTime(loaded, total, timeElapsed) {
+    if (loaded === 0 || timeElapsed === 0) return 0;
+    const remaining = total - loaded;
+    const speed = loaded / (timeElapsed / 1000);
+    return Math.ceil(remaining / speed);
+}
+</script>
+{% endblock %}
+

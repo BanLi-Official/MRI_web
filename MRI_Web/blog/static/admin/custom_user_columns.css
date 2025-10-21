@@ -1,0 +1,9 @@
+/* Ensure custom list_display columns match default admin list cell styles */
+.change-list #result_list td, .change-list #result_list th {
+  font-weight: normal;
+}
+
+/* Avoid unintended bold or different sizing on custom columns */
+td.field-get_identity, td.field-get_institution {
+  font-weight: normal !important;
+}
